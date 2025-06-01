@@ -47,6 +47,7 @@ public class PuzzleImageSlicer : MonoBehaviour
         );
 
         renderer.sprite = sprite;
+        renderer.color = new Color(1,1,1,0.5f) ;
         originalObj.transform.position = new Vector3(0, 0, 20); // 원본 위치
         originalObj.transform.rotation = Quaternion.Euler(90f, 0, 0);
     }
