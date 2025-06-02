@@ -2,11 +2,22 @@ using UnityEngine;
 
 public class Piece : MonoBehaviour
 {
+    public int row, col;
     public Vector3 correctPosition;
+    private bool isLocked = false;
 
-    // 이후 드래그/트리거 이벤트 등에서 사용할 위치 비교용 메서드
-    public bool IsInCorrectPosition(float threshold = 0.1f)
+    public void LockPiece()
     {
-        return Vector3.Distance(transform.position, correctPosition) < threshold;
+        isLocked = true;
+        GetComponent<Collider>().enabled = false;
+    }
+
+    public void ResetToRandomPosition()
+    {
+        if (isLocked) return;
+
+        float x = Random.Range(-20f, 20f);
+        float z = Random.Range(-20f, 0f);
+        transform.position = new Vector3(x, 0, z);
     }
 }

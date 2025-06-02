@@ -7,7 +7,9 @@ public class PuzzleImageSlicer : MonoBehaviour
     public int rows = 3;
     public int cols = 3;
     public float worldSize = 3f; // 원본 이미지가 차지할 총 월드 크기
+
     public GameObject piecePrefab;
+    public GameObject puzzleBackgroundPrefab;
 
     void Start()
     {
@@ -34,22 +36,12 @@ public class PuzzleImageSlicer : MonoBehaviour
 
     void CreateFullImageObject(Texture2D texture)
     {
-        GameObject originalObj = new GameObject("OriginalImage");
-        SpriteRenderer renderer = originalObj.AddComponent<SpriteRenderer>();
+        GameObject bgObj = Instantiate(puzzleBackgroundPrefab);
+        bgObj.transform.position = new Vector3(0, 0, 20);
+        bgObj.transform.rotation = Quaternion.Euler(90f, 0, 0);
 
-        float pixelsPerUnit = texture.width / worldSize;
-
-        Sprite sprite = Sprite.Create(
-            texture,
-            new Rect(0, 0, texture.width, texture.height),
-            new Vector2(0.5f, 0.5f),
-            pixelsPerUnit
-        );
-
-        renderer.sprite = sprite;
-        renderer.color = new Color(1,1,1,0.5f) ;
-        originalObj.transform.position = new Vector3(0, 0, 20); // 원본 위치
-        originalObj.transform.rotation = Quaternion.Euler(90f, 0, 0);
+        PuzzleBackground background = bgObj.GetComponent<PuzzleBackground>();
+        background.Init(texture, worldSize, rows, cols);
     }
 
     void CreatePuzzlePieces(Texture2D texture)
@@ -59,13 +51,15 @@ public class PuzzleImageSlicer : MonoBehaviour
         float piecePixelWidth = (float)texture.width / cols;
         float piecePixelHeight = (float)texture.height / rows;
 
+        float imageAspect = (float)texture.height / texture.width;
+        float worldHeight = worldSize * imageAspect;
+
         float pieceWorldWidth = worldSize / cols;
-        float pieceWorldHeight = (worldSize * texture.height / texture.width) / rows;
+        float pieceWorldHeight = worldHeight / rows;
 
-        Vector2 startPos = new Vector2(-pieceWorldWidth * (cols - 1) / 2f, pieceWorldHeight * (rows - 1) / 2f);
-        Vector3 originalImagePos = new Vector3(0, 0, 20); // 원본 위치
+        Vector3 originalImagePos = new Vector3(0, 0, 20); // 퍼즐 배경 위치
+        Vector3 topLeft = originalImagePos - new Vector3(worldSize / 2f, 0, worldHeight / 2f);
 
-        // 조각 간 간격을 고려하여 겹치지 않는 위치 생성
         HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
 
         for (int row = 0; row < rows; row++)
@@ -95,17 +89,19 @@ public class PuzzleImageSlicer : MonoBehaviour
                 if (renderer != null)
                     renderer.sprite = pieceSprite;
 
-                // 올바른 위치 설정
-                float correctX = startPos.x + col * pieceWorldWidth;
-                float correctZ = startPos.y - row * pieceWorldHeight;
-                Vector3 correctPos = new Vector3(correctX, 0, correctZ) + originalImagePos;
+                // 올바른 위치 계산
+                Vector3 correctPos = topLeft + new Vector3(
+                    col * pieceWorldWidth + pieceWorldWidth / 2f,
+                    0,
+                    row * pieceWorldHeight + pieceWorldHeight / 2f
+                );
 
-                // 겹치지 않는 랜덤 위치 생성 (격자 단위)
+                // 겹치지 않는 랜덤 위치 생성
                 Vector3 randomPos = Vector3.zero;
                 while (true)
                 {
                     int randX = Random.Range(-20, 21);
-                    int randZ = Random.Range(-21, 0);
+                    int randZ = Random.Range(-20, 0);
                     Vector2Int gridPos = new Vector2Int(randX, randZ);
                     if (!usedPositions.Contains(gridPos))
                     {
@@ -116,24 +112,27 @@ public class PuzzleImageSlicer : MonoBehaviour
                 }
 
                 piece.transform.position = randomPos;
-                piece.transform.rotation = Quaternion.Euler(90f, 0, 0);
+                piece.transform.rotation = Quaternion.Euler(90f, 0, 0); // 2D Sprite가 평면에 눕게
 
                 // 정답 위치 저장
                 Piece pieceScript = piece.GetComponent<Piece>();
                 if (pieceScript != null)
                 {
                     pieceScript.correctPosition = correctPos;
+                    pieceScript.row = row;
+                    pieceScript.col = col;
                 }
 
-                // 박스 콜라이더 크기 설정
+                // 콜라이더 설정
                 BoxCollider box = piece.GetComponent<BoxCollider>();
                 if (box != null)
                 {
                     // 조각이 x축으로 90도 회전되어 있으므로 y,z가 이미지 가로/세로에 대응됨
-                    box.size = new Vector3(pieceWorldWidth, pieceWorldHeight, 0.2f); // 얇게, 가로, 세로
+                    box.size = new Vector3(pieceWorldWidth, pieceWorldHeight, 0.2f);
                     box.center = Vector3.zero;
                 }
             }
         }
     }
+
 }
