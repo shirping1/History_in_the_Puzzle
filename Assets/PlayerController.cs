@@ -1,6 +1,7 @@
+using Photon.Pun;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviourPun
 {
     public float moveSpeed = 3f;
     private Animator animator;
@@ -16,6 +17,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (!photonView.IsMine) return;
+
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
