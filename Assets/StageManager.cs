@@ -15,6 +15,20 @@ public class StageManager : MonoBehaviourPunCallbacks
 
     bool isGameStarted = false;
 
+    public static StageManager Instance;
+
+    public Person person;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+            Destroy(this);
+    }
+
     void Start()
     {
         StartCoroutine(Init());
@@ -48,7 +62,9 @@ public class StageManager : MonoBehaviourPunCallbacks
         {
             isGameStarted = true;
             Debug.Log("모든 플레이어 접속 완료. 게임 시작!");
-            imageSlicer.Init();
+            person = (Person)Random.Range(0, (int)Person.MAX);// 0 이상 max 미만
+
+            imageSlicer.Init(person);
         }
     }
 }

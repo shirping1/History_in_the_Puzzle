@@ -42,6 +42,7 @@ MonoBehaviour:
   - InitPiece
   - RPC_LockPiece
   - RPC_Init
+  - RPC_PopUpQuizPanel
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

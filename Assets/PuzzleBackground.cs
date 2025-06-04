@@ -14,13 +14,15 @@ public class PuzzleBackground : MonoBehaviourPun
 
     int rows, cols;
 
-    public void Init(string textureName, float worldSize, int rows, int cols)
+    private Person person;
+
+    public void Init(string textureName, float worldSize, int rows, int cols, Person person)
     {
-        photonView.RPC("RPC_Init", RpcTarget.OthersBuffered, textureName, worldSize, rows, cols);
+        photonView.RPC("RPC_Init", RpcTarget.OthersBuffered, textureName, worldSize, rows, cols, (int)person);
 
-        Texture2D texture = Resources.Load<Texture2D>("KingSejongtheGreat/" + textureName);
+        Texture2D texture = Resources.Load<Texture2D>("Images/" + textureName);
 
-        if(texture == null)
+        if (texture == null)
         {
             Debug.Log("Resources 폴더에 이미지가 없습니다: " + textureName);
         }
@@ -31,6 +33,7 @@ public class PuzzleBackground : MonoBehaviourPun
 
         this.rows = rows;
         this.cols = cols;
+        this.person = person;
 
         // 퍼즐 조각당 크기 계산
         pieceWorldWidth = worldSize / cols;
@@ -54,9 +57,9 @@ public class PuzzleBackground : MonoBehaviourPun
     }
 
     [PunRPC]
-    public void RPC_Init(string textureName, float worldSize, int rows, int cols)
+    public void RPC_Init(string textureName, float worldSize, int rows, int cols, int person)
     {
-        Init(textureName, worldSize, rows, cols);
+        Init(textureName, worldSize, rows, cols, (Person)person);
     }
 
 #if UNITY_EDITOR
@@ -114,9 +117,8 @@ public class PuzzleBackground : MonoBehaviourPun
             if (Vector3.Distance(piece.transform.position, targetPos) <= threshold)
             {
                 Debug.Log($"[Snap] {piece.row},{piece.col} 위치에 정착");
-                piece.transform.position = targetPos;
-                piece.transform.rotation = Quaternion.Euler(90f, 0, 0);
-                piece.LockPiece();
+                piece.SetTargetTransform(targetPos, Quaternion.Euler(90f, 0, 0));
+                photonView.RPC(nameof(RPC_PopUpQuizPanel), piece.photonView.Owner, piece.photonView.ViewID, (int)person);
             }
             else
             {
@@ -124,5 +126,12 @@ public class PuzzleBackground : MonoBehaviourPun
                 piece.ResetToRandomPosition();
             }
         }
+    }
+
+    [PunRPC]
+    public void RPC_PopUpQuizPanel(int viewID, int person)
+    {
+        UIQuizPanel uIQuizPanel = UIManager.Instance.OpenPopupPanel<UIQuizPanel>();
+        uIQuizPanel.Init(viewID, (Person)person);
     }
 }

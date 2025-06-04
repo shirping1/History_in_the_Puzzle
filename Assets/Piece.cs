@@ -8,8 +8,20 @@ public class Piece : MonoBehaviourPun
     public Vector3 correctPosition;
     private bool isLocked = false;
 
+    private Vector3 pos;
+    private Quaternion quaternion;
+
+    public void SetTargetTransform(Vector3 pos, Quaternion quaternion)
+    {
+        this.pos = pos;
+        this.quaternion = quaternion;
+    }
+
     public void LockPiece()
     {
+        transform.position = pos;
+        transform.rotation = quaternion;
+
         isLocked = true;
         GetComponent<Collider>().enabled = false;
         photonView.RPC(nameof(RPC_LockPiece), RpcTarget.Others);
@@ -44,10 +56,10 @@ public class Piece : MonoBehaviourPun
         Rect spriteRect = new Rect(x, y, rectWidth, rectHeight);
 
         // 퍼즐 텍스처 로드
-        Texture2D texture = Resources.Load<Texture2D>($"KingSejongtheGreat/{textureName}");
+        Texture2D texture = Resources.Load<Texture2D>($"Images/{textureName}");
         if (texture == null)
         {
-            Debug.LogError($"Texture '{textureName}' not found in Resources/KingSejongtheGreat/");
+            Debug.LogError($"Texture '{textureName}' not found in Resources/Images/");
             return;
         }
 

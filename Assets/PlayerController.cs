@@ -93,6 +93,12 @@ public class PlayerController : MonoBehaviourPun
 
     private void PickUpPiece(GameObject piece)
     {
+        PhotonView view = piece.GetComponent<PhotonView>();
+        if (view != null && !view.IsMine)
+        {
+            view.RequestOwnership(); // 소유권 요청
+        }
+
         currentHeldPiece = piece;
         piece.transform.SetParent(holdPoint);
 

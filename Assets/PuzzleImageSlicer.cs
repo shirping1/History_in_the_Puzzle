@@ -12,17 +12,17 @@ public class PuzzleImageSlicer : MonoBehaviour
     public GameObject piecePrefab;
     public GameObject puzzleBackgroundPrefab;
 
-    public void Init()
+    public void Init(Person person)
     {
         if (!PhotonNetwork.IsMasterClient)
         {
             return;
         }
 
-        Texture2D originalTexture = Resources.Load<Texture2D>("KingSejongtheGreat/" + imageName);
+        Texture2D originalTexture = Resources.Load<Texture2D>("Images/" + person);
         if (originalTexture == null)
         {
-            Debug.LogError("Resources 폴더에 이미지가 없습니다: " + imageName);
+            Debug.LogError("Resources 폴더에 이미지가 없습니다: " + person);
             return;
         }
 
@@ -36,16 +36,16 @@ public class PuzzleImageSlicer : MonoBehaviour
             }
         }
 
-        CreateFullImageObject(imageName);
-        CreatePuzzlePieces(originalTexture, imageName);
+        CreateFullImageObject(person.ToString(), person);
+        CreatePuzzlePieces(originalTexture, person.ToString());
     }
 
-    void CreateFullImageObject(string textureName)
+    void CreateFullImageObject(string textureName, Person person)
     {
         GameObject bgObj = PhotonNetwork.Instantiate(puzzleBackgroundPrefab.name, new Vector3(0, 0, 20), Quaternion.Euler(90f, 0, 0));
 
         PuzzleBackground background = bgObj.GetComponent<PuzzleBackground>();
-        background.Init(textureName, worldSize, rows, cols);
+        background.Init(textureName, worldSize, rows, cols, person);
     }
 
     void CreatePuzzlePieces(Texture2D texture, string textureName)
