@@ -12,7 +12,7 @@ public class PuzzleImageSlicer : MonoBehaviour
     public GameObject piecePrefab;
     public GameObject puzzleBackgroundPrefab;
 
-    void Start()
+    public void Init()
     {
         if (!PhotonNetwork.IsMasterClient)
         {

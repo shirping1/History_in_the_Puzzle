@@ -293,6 +293,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPerfab: {fileID: 4169414368398200755, guid: f87d2e28b99221647879fdc927583d0d, type: 3}
   cinemachineCamera: {fileID: 69456074}
+  imageSlicer: {fileID: 423418794}
 --- !u!1 &660426129
 GameObject:
   m_ObjectHideFlags: 0
