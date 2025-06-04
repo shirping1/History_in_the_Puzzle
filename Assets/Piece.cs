@@ -44,10 +44,10 @@ public class Piece : MonoBehaviourPun
         Rect spriteRect = new Rect(x, y, rectWidth, rectHeight);
 
         // 퍼즐 텍스처 로드
-        Texture2D texture = Resources.Load<Texture2D>($"Puzzles/{textureName}");
+        Texture2D texture = Resources.Load<Texture2D>($"KingSejongtheGreat/{textureName}");
         if (texture == null)
         {
-            Debug.LogError($"Texture '{textureName}' not found in Resources/Puzzles/");
+            Debug.LogError($"Texture '{textureName}' not found in Resources/KingSejongtheGreat/");
             return;
         }
 
