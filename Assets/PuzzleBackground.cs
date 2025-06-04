@@ -16,7 +16,7 @@ public class PuzzleBackground : MonoBehaviourPun
 
     public void Init(string textureName, float worldSize, int rows, int cols)
     {
-        photonView.RPC("RPC_Init", RpcTarget.Others, textureName, worldSize, rows, cols);
+        photonView.RPC("RPC_Init", RpcTarget.OthersBuffered, textureName, worldSize, rows, cols);
 
         Texture2D texture = Resources.Load<Texture2D>("KingSejongtheGreat/" + textureName);
 
