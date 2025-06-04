@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,11 @@ public class PuzzleImageSlicer : MonoBehaviour
 
     void Start()
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            return;
+        }
+
         Texture2D originalTexture = Resources.Load<Texture2D>("KingSejongtheGreat/" + imageName);
         if (originalTexture == null)
         {
@@ -30,18 +36,16 @@ public class PuzzleImageSlicer : MonoBehaviour
             }
         }
 
-        CreateFullImageObject(originalTexture);
+        CreateFullImageObject(imageName);
         CreatePuzzlePieces(originalTexture);
     }
 
-    void CreateFullImageObject(Texture2D texture)
+    void CreateFullImageObject(string textureName)
     {
-        GameObject bgObj = Instantiate(puzzleBackgroundPrefab);
-        bgObj.transform.position = new Vector3(0, 0, 20);
-        bgObj.transform.rotation = Quaternion.Euler(90f, 0, 0);
+        GameObject bgObj = PhotonNetwork.Instantiate(puzzleBackgroundPrefab.name, new Vector3(0, 0, 20), Quaternion.Euler(90f, 0, 0));
 
         PuzzleBackground background = bgObj.GetComponent<PuzzleBackground>();
-        background.Init(texture, worldSize, rows, cols);
+        background.Init(textureName, worldSize, rows, cols);
     }
 
     void CreatePuzzlePieces(Texture2D texture)

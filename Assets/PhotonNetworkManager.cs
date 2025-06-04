@@ -23,6 +23,12 @@ public class PhotonNetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.SerializationRate = 60;
     }
 
+    private void Start()
+    {
+        PhotonNetwork.GameVersion = gameVersion;
+        PhotonNetwork.ConnectUsingSettings();
+    }
+
     public override void OnConnectedToMaster()
     {
         Debug.Log("포톤 마스터 서버에 연결됨");
@@ -34,44 +40,37 @@ public class PhotonNetworkManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void ConnectPhotonToSinglePlay()
+    public void SinglePlay()
     {
-        PhotonNetwork.OfflineMode = true;
-        PhotonNetwork.GameVersion = gameVersion;
-
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = 1;
 
         PhotonNetwork.CreateRoom("싱글플레이", roomOptions);
 
-        Debug.Log("싱글 플레이 (오프라인 모드)로 포톤 접속 및 방 생성");
+        Debug.Log("싱글 플레이로 포톤 접속 및 방 생성");
     }
 
-    public void ConnectPhoton()
+    public void MultuPlay()
     {
         PhotonNetwork.OfflineMode = false; // 온라인 모드
-        PhotonNetwork.GameVersion = gameVersion;
-        PhotonNetwork.ConnectUsingSettings();
+        PhotonNetwork.JoinRandomRoom();
+    }
 
-        Debug.Log("포톤서버 접속 시도 (온라인)");
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        Debug.Log("빈 방이 없어 새 방을 생성합니다.");
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 2;
+
+        PhotonNetwork.CreateRoom(null, roomOptions); // 랜덤한 이름으로 방 생성
     }
 
     public override void OnJoinedRoom()
     {
-        if (PhotonNetwork.OfflineMode)
+        if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.LoadLevel("Stage");
         }
-
-        //if (!PhotonNetwork.OfflineMode)
-        //{
-        //    //UIManager.Instance.OpenPanelInOverlayCanvas<UIRoomPanel>();
-        //}
-        //if (PhotonNetwork.IsMasterClient)
-        //{
-        //    //photonNetworkManager = PhotonNetwork.InstantiateRoomObject("PhotonNetworkManager", Vector3.zero, Quaternion.identity);
-        //    //DontDestroyOnLoad(photonNetworkManager);
-        //}
     }
 
     public override void OnLeftRoom()

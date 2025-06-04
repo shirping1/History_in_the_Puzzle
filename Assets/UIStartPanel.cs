@@ -25,12 +25,18 @@ public class UIStartPanel : UIBase
 
     private void OnClickedMultiPlayButton()
     {
+        multiPlayButton.interactable = false;
+        singlePlayButton.interactable = false;
 
+        PhotonNetworkManager.Instance.MultuPlay();
     }
 
     private void OnClickedSinglePlayButton()
     {
-        PhotonNetworkManager.Instance.ConnectPhotonToSinglePlay();
+        multiPlayButton.interactable = false;
+        singlePlayButton.interactable = false;
+
+        PhotonNetworkManager.Instance.SinglePlay();
     }
 
     private void OnClickedQuitButton()

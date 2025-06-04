@@ -13,8 +13,15 @@ public class PuzzleBackground : MonoBehaviour
 
     int rows, cols;
 
-    public void Init(Texture2D texture, float worldSize, int rows, int cols)
+    public void Init(string textureName, float worldSize, int rows, int cols)
     {
+        Texture2D texture = Resources.Load<Texture2D>("KingSejongtheGreat/" + textureName);
+
+        if(texture == null)
+        {
+            Debug.Log("Resources 폴더에 이미지가 없습니다: " + textureName);
+        }
+
         this.texture = texture;
         this.worldSize = worldSize;
         this.textureAspect = (float)texture.height / texture.width;
@@ -41,6 +48,11 @@ public class PuzzleBackground : MonoBehaviour
         BoxCollider collider = GetComponent<BoxCollider>();
         collider.size = new Vector3(worldSize, worldSize * textureAspect, 0.2f);
         collider.center = Vector3.zero;
+    }
+
+    public void RPC_Init(string textureName, float worldSize, int rows, int cols)
+    {
+        Init(textureName, worldSize, rows, cols);
     }
 
 #if UNITY_EDITOR
