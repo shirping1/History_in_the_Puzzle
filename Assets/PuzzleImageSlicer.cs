@@ -106,9 +106,9 @@ public class PuzzleImageSlicer : MonoBehaviour
 
                 Piece pieceScript = piece.GetComponent<Piece>();
                 pieceScript.photonView.RPC(
-                    "InitPiece",
+                    nameof(pieceScript.InitPiece),
                     RpcTarget.AllBuffered,
-                    row, col, correctPos, randomPos, rect, pixelsPerUnit, textureName
+                    row, col, correctPos, randomPos, rect.x, rect.y, rect.width, rect.height, pixelsPerUnit, textureName
                 );
             }
         }

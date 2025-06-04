@@ -1,4 +1,5 @@
 using Photon.Pun;
+using UnityEditor;
 using UnityEngine;
 
 public class Piece : MonoBehaviourPun
@@ -32,13 +33,15 @@ public class Piece : MonoBehaviourPun
     }
 
     [PunRPC]
-    public void InitPiece(int row, int col, Vector3 correctPos, Vector3 randomPos, Rect spriteRect, float pixelsPerUnit, string textureName)
+    public void InitPiece(int row, int col, Vector3 correctPos, Vector3 randomPos, float x, float y, float rectWidth, float rectHeight, float pixelsPerUnit, string textureName)
     {
         this.row = row;
         this.col = col;
         this.correctPosition = correctPos;
         transform.position = randomPos;
         transform.rotation = Quaternion.Euler(90f, 0, 0);
+
+        Rect spriteRect = new Rect(x, y, rectWidth, rectHeight);
 
         // 퍼즐 텍스처 로드
         Texture2D texture = Resources.Load<Texture2D>($"Puzzles/{textureName}");
