@@ -2,7 +2,7 @@ using Photon.Pun;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class StageManager : MonoBehaviour
+public class StageManager : MonoBehaviourPun
 {
     [SerializeField]
     private GameObject playerPerfab;

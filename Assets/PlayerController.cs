@@ -17,13 +17,17 @@ public class PlayerController : MonoBehaviourPun
 
     void Update()
     {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine)
+        {
+            GetComponent<Animator>().applyRootMotion = false;
+            return;
+        }
 
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
         Vector3 moveInput = new Vector3(h, 0, v).normalized;
-       
+
 
         // È¸Àü
         if (moveInput != Vector3.zero)
