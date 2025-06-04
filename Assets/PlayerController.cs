@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviourPun
 
     private void FixedUpdate()
     {
-        rb.MovePosition(rb.position + moveInput * Time.fixedDeltaTime * moveSpeed);
+        //rb.MovePosition(rb.position + moveInput * Time.fixedDeltaTime * moveSpeed);
     }
 
     private void OnTriggerEnter(Collider other)
