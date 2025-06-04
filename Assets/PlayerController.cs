@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviourPun
 {
     public float moveSpeed = 3f;
     private Animator animator;
+    private Rigidbody rb;
 
     private GameObject nearbyPiece = null;       // 충돌 중인 Piece
     private GameObject currentHeldPiece = null;  // 현재 들고 있는 Piece
@@ -13,20 +14,26 @@ public class PlayerController : MonoBehaviourPun
     void Start()
     {
         animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
+        if (!photonView.IsMine)
+        {
+            animator.applyRootMotion = false;
+        }
     }
+
+    Vector3 moveInput;
 
     void Update()
     {
         if (!photonView.IsMine)
         {
-            GetComponent<Animator>().applyRootMotion = false;
             return;
         }
 
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
-        Vector3 moveInput = new Vector3(h, 0, v).normalized;
+        moveInput = new Vector3(h, 0, v).normalized;
 
 
         // 회전
@@ -51,6 +58,21 @@ public class PlayerController : MonoBehaviourPun
                 PickUpPiece(nearbyPiece); // 근처에 있고 안 들고 있으면 줍기
             }
         }
+    }
+
+    private void OnAnimatorMove()
+    {
+        if (photonView.IsMine)
+        {
+            // RootMotion 적용된 이동과 회전을 transform에 반영
+            transform.position += animator.deltaPosition;
+            transform.rotation *= animator.deltaRotation;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        rb.MovePosition(rb.position + moveInput * Time.fixedDeltaTime * moveSpeed);
     }
 
     private void OnTriggerEnter(Collider other)
