@@ -1,6 +1,7 @@
+using Photon.Pun;
 using UnityEngine;
 
-public class PuzzleBackground : MonoBehaviour
+public class PuzzleBackground : MonoBehaviourPun
 {
     private float worldSize;
     private float textureAspect; // height / width
@@ -15,6 +16,8 @@ public class PuzzleBackground : MonoBehaviour
 
     public void Init(string textureName, float worldSize, int rows, int cols)
     {
+        photonView.RPC("RPC_Init", RpcTarget.Others, textureName, worldSize, rows, cols);
+
         Texture2D texture = Resources.Load<Texture2D>("KingSejongtheGreat/" + textureName);
 
         if(texture == null)
@@ -85,6 +88,11 @@ public class PuzzleBackground : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            return;
+        }
+
         Piece piece = other.GetComponent<Piece>();
         if (piece != null)
         {

@@ -37,7 +37,7 @@ public class PuzzleImageSlicer : MonoBehaviour
         }
 
         CreateFullImageObject(imageName);
-        CreatePuzzlePieces(originalTexture);
+        CreatePuzzlePieces(originalTexture, imageName);
     }
 
     void CreateFullImageObject(string textureName)
@@ -48,8 +48,10 @@ public class PuzzleImageSlicer : MonoBehaviour
         background.Init(textureName, worldSize, rows, cols);
     }
 
-    void CreatePuzzlePieces(Texture2D texture)
+    void CreatePuzzlePieces(Texture2D texture, string textureName)
     {
+        if (!PhotonNetwork.IsMasterClient) return;
+
         float pixelsPerUnit = texture.width / worldSize;
 
         float piecePixelWidth = (float)texture.width / cols;
@@ -61,7 +63,7 @@ public class PuzzleImageSlicer : MonoBehaviour
         float pieceWorldWidth = worldSize / cols;
         float pieceWorldHeight = worldHeight / rows;
 
-        Vector3 originalImagePos = new Vector3(0, 0, 20); // 퍼즐 배경 위치
+        Vector3 originalImagePos = new Vector3(0, 0, 20);
         Vector3 topLeft = originalImagePos - new Vector3(worldSize / 2f, 0, worldHeight / 2f);
 
         HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
@@ -79,28 +81,15 @@ public class PuzzleImageSlicer : MonoBehaviour
                     piecePixelHeight
                 );
 
-                Sprite pieceSprite = Sprite.Create(
-                    texture,
-                    rect,
-                    new Vector2(0.5f, 0.5f),
-                    pixelsPerUnit
-                );
-
-                GameObject piece = Instantiate(piecePrefab);
+                GameObject piece = PhotonNetwork.Instantiate(piecePrefab.name, Vector3.zero, Quaternion.identity);
                 piece.name = $"Piece_{row}_{col}";
 
-                SpriteRenderer renderer = piece.GetComponent<SpriteRenderer>();
-                if (renderer != null)
-                    renderer.sprite = pieceSprite;
-
-                // 올바른 위치 계산
                 Vector3 correctPos = topLeft + new Vector3(
                     col * pieceWorldWidth + pieceWorldWidth / 2f,
                     0,
                     row * pieceWorldHeight + pieceWorldHeight / 2f
                 );
 
-                // 겹치지 않는 랜덤 위치 생성
                 Vector3 randomPos = Vector3.zero;
                 while (true)
                 {
@@ -115,26 +104,12 @@ public class PuzzleImageSlicer : MonoBehaviour
                     }
                 }
 
-                piece.transform.position = randomPos;
-                piece.transform.rotation = Quaternion.Euler(90f, 0, 0); // 2D Sprite가 평면에 눕게
-
-                // 정답 위치 저장
                 Piece pieceScript = piece.GetComponent<Piece>();
-                if (pieceScript != null)
-                {
-                    pieceScript.correctPosition = correctPos;
-                    pieceScript.row = row;
-                    pieceScript.col = col;
-                }
-
-                // 콜라이더 설정
-                BoxCollider box = piece.GetComponent<BoxCollider>();
-                if (box != null)
-                {
-                    // 조각이 x축으로 90도 회전되어 있으므로 y,z가 이미지 가로/세로에 대응됨
-                    box.size = new Vector3(pieceWorldWidth, pieceWorldHeight, 0.2f);
-                    box.center = Vector3.zero;
-                }
+                pieceScript.photonView.RPC(
+                    "InitPiece",
+                    RpcTarget.AllBuffered,
+                    row, col, correctPos, randomPos, rect, pixelsPerUnit, textureName
+                );
             }
         }
     }
