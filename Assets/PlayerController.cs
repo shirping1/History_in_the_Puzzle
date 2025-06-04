@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviourPun
 
     private void OnAnimatorMove()
     {
-        if (photonView.IsMine)
+        if (animator != null && photonView.IsMine)
         {
             // RootMotion 적용된 이동과 회전을 transform에 반영
             transform.position += animator.deltaPosition;

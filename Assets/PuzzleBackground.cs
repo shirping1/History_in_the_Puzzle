@@ -53,6 +53,7 @@ public class PuzzleBackground : MonoBehaviourPun
         collider.center = Vector3.zero;
     }
 
+    [PunRPC]
     public void RPC_Init(string textureName, float worldSize, int rows, int cols)
     {
         Init(textureName, worldSize, rows, cols);
