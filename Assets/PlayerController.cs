@@ -1,20 +1,23 @@
+ï»¿
 using Photon.Pun;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviourPun
 {
     public float moveSpeed = 3f;
+    [HideInInspector] public Transform holdPoint;  // ì¸ìŠ¤í™í„°ì— í• ë‹¹ë˜ì–´ì•¼ í•¨
+
     private Animator animator;
     private Rigidbody rb;
 
-    private GameObject nearbyPiece = null;       // Ãæµ¹ ÁßÀÎ Piece
-    private GameObject currentHeldPiece = null;  // ÇöÀç µé°í ÀÖ´Â Piece
-    public Transform holdPoint;                  // ¸Ó¸® À§ À§Ä¡
+    private GameObject nearbyPiece = null;       // ì¶©ëŒ ì¤‘ì¸ Piece
+    private GameObject currentHeldPiece = null;  // í˜„ì¬ ë“¤ê³  ìˆëŠ” Piece
 
     void Start()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        // ë¹„ë§ˆìŠ¤í„°ëŠ” ë¡œì»¬ì—ì„œ RootMotionì„ ì“°ì§€ ì•Šê³ 
         if (!photonView.IsMine)
         {
             animator.applyRootMotion = false;
@@ -25,37 +28,34 @@ public class PlayerController : MonoBehaviourPun
 
     void Update()
     {
+        // ë¹„ë§ˆìŠ¤í„°ëŠ” ì…ë ¥/ì´ë™ ë¡œì§ì„ ì‹¤í–‰í•˜ì§€ ì•ŠìŒ (Transformì€ PhotonTransformViewê°€ ì²˜ë¦¬)
         if (!photonView.IsMine)
-        {
             return;
-        }
 
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
-
         moveInput = new Vector3(h, 0, v).normalized;
 
-
-        // È¸Àü
+        // íšŒì „
         if (moveInput != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveInput);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
 
-        // ¾Ö´Ï¸ŞÀÌ¼Ç Speed ¾÷µ¥ÀÌÆ®
+        // ì• ë‹ˆë©”ì´ì…˜ Speed ì—…ë°ì´íŠ¸
         animator.SetFloat("Speed", moveInput.magnitude);
 
-        // GÅ° ÀÔ·Â
+        // Gí‚¤ ì…ë ¥ (ì¤ê¸°/ë†“ê¸°)
         if (Input.GetKeyDown(KeyCode.G))
         {
             if (currentHeldPiece != null)
             {
-                DropPiece(); // µé°í ÀÖÀ¸¸é ³õ±â
+                DropPiece();
             }
             else if (nearbyPiece != null)
             {
-                PickUpPiece(nearbyPiece); // ±ÙÃ³¿¡ ÀÖ°í ¾È µé°í ÀÖÀ¸¸é Áİ±â
+                PickUpPiece(nearbyPiece);
             }
         }
     }
@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviourPun
     {
         if (animator != null && photonView.IsMine)
         {
-            // RootMotion Àû¿ëµÈ ÀÌµ¿°ú È¸ÀüÀ» transform¿¡ ¹İ¿µ
+            // RootMotionì„ ì´ë™/íšŒì „ì— ì ìš©
             transform.position += animator.deltaPosition;
             transform.rotation *= animator.deltaRotation;
         }
@@ -72,7 +72,9 @@ public class PlayerController : MonoBehaviourPun
 
     private void FixedUpdate()
     {
-        //rb.MovePosition(rb.position + moveInput * Time.fixedDeltaTime * moveSpeed);
+        // (ì„ íƒì‚¬í•­) ë¬¼ë¦¬ ì´ë™ìœ¼ë¡œ ëŒ€ì²´í•  ê²½ìš° ì£¼ì„ í•´ì œ
+        // if (photonView.IsMine)
+        //     rb.MovePosition(rb.position + moveInput * Time.fixedDeltaTime * moveSpeed);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -93,41 +95,92 @@ public class PlayerController : MonoBehaviourPun
 
     private void PickUpPiece(GameObject piece)
     {
-        PhotonView view = piece.GetComponent<PhotonView>();
-        if (view != null && !view.IsMine)
+        PhotonView piecePV = piece.GetComponent<PhotonView>();
+        if (piecePV != null && !piecePV.IsMine)
         {
-            view.RequestOwnership(); // ¼ÒÀ¯±Ç ¿äÃ»
+            piecePV.RequestOwnership();
         }
 
         currentHeldPiece = piece;
-        piece.transform.SetParent(holdPoint);
+        int myID = photonView.ViewID;
+        int pieceID = piecePV.ViewID;
 
-        // À§Ä¡¸¸ Á¶Á¤ÇÏ°í, È¸ÀüÀº ±×´ë·Î À¯Áö
+        // â‘  ë¡œì»¬ì—ì„  ì¦‰ì‹œ ë¶€ëª¨ ë¶™ì´ê³  ìœ„ì¹˜ ê³ ì •
+        _AttachPieceLocally(piece);
+
+        // â‘¡ ë‹¤ë¥¸ í´ë¼ì´ì–¸íŠ¸ì— ë™ì¼í•˜ê²Œ ë¶€ëª¨ ë¶™ì´ê³  ìœ„ì¹˜ ê³ ì •í•˜ë„ë¡ RPC í˜¸ì¶œ
+        photonView.RPC(nameof(RPC_PickUpPiece), RpcTarget.OthersBuffered, pieceID, myID);
+    }
+
+    private void _AttachPieceLocally(GameObject piece)
+    {
+        piece.transform.SetParent(holdPoint);
         piece.transform.position = holdPoint.position;
+
+        
+        // piece.transform.localRotation = Quaternion.identity; â† ì´ ì¤„ ì œê±°
 
         Rigidbody rb = piece.GetComponent<Rigidbody>();
         if (rb) rb.isKinematic = true;
     }
 
-    private void DropPiece()
+    [PunRPC]
+    private void RPC_PickUpPiece(int pieceViewID, int playerViewID)
     {
-        // 1. ºÎ¸ğ ÇØÁ¦
-        currentHeldPiece.transform.SetParent(null);
+        PhotonView piecePV = PhotonView.Find(pieceViewID);
+        PhotonView playerPV = PhotonView.Find(playerViewID);
+        if (piecePV == null || playerPV == null) return;
 
-        // 2. ÇöÀç À§Ä¡ °¡Á®¿À±â
-        Vector3 dropPosition = currentHeldPiece.transform.position;
+        PlayerController pc = playerPV.GetComponent<PlayerController>();
+        if (pc == null) return;
 
-        // 3. y°ª¸¸ 0À¸·Î ¼³Á¤ (¹Ù´Ú¿¡ ¶³¾î¶ß¸²)
-        dropPosition.y = 0f;
-        currentHeldPiece.transform.position = dropPosition;
+        piecePV.transform.SetParent(pc.holdPoint);
+        piecePV.transform.position = pc.holdPoint.position;
 
-        // 4. ¹°¸® È°¼ºÈ­
-        Rigidbody rb = currentHeldPiece.GetComponent<Rigidbody>();
-        if (rb) rb.isKinematic = false;
+        // âš  íšŒì „ê°’ì„ ë³€ê²½í•˜ì§€ ì•Šê³  ê·¸ëŒ€ë¡œ ë‘ 
+        // piecePV.transform.localRotation = Quaternion.identity; â† ì œê±°
 
-        // 5. ÇöÀç µé°í ÀÖ´Â Á¶°¢ ÃÊ±âÈ­
-        currentHeldPiece = null;
+        Rigidbody rb = piecePV.GetComponent<Rigidbody>();
+        if (rb) rb.isKinematic = true;
     }
 
 
+    private void DropPiece()
+    {
+        if (currentHeldPiece == null) return;
+
+        int pieceID = currentHeldPiece.GetComponent<PhotonView>().ViewID;
+
+        // â‘  ë¡œì»¬ì—ì„œ ë¶€ëª¨ í•´ì œ + y=0
+        _DetachPieceLocally(currentHeldPiece);
+
+        // â‘¡ ì›ê²©ì—ë„ ë™ì¼í•˜ê²Œ ë¶€ëª¨ í•´ì œ + y=0
+        photonView.RPC(nameof(RPC_DropPiece), RpcTarget.OthersBuffered, pieceID);
+
+        currentHeldPiece = null;
+    }
+
+    private void _DetachPieceLocally(GameObject piece)
+    {
+        piece.transform.SetParent(null);
+        Vector3 dropPos = piece.transform.position;
+        dropPos.y = 0f;
+        piece.transform.position = dropPos;
+        Rigidbody rbPiece = piece.GetComponent<Rigidbody>();
+        if (rbPiece) rbPiece.isKinematic = false;
+    }
+
+    [PunRPC]
+    private void RPC_DropPiece(int pieceViewID)
+    {
+        PhotonView piecePV = PhotonView.Find(pieceViewID);
+        if (piecePV == null) return;
+
+        piecePV.transform.SetParent(null);
+        Vector3 dropPos = piecePV.transform.position;
+        dropPos.y = 0f;
+        piecePV.transform.position = dropPos;
+        Rigidbody rbPiece = piecePV.GetComponent<Rigidbody>();
+        if (rbPiece) rbPiece.isKinematic = false;
+    }
 }
