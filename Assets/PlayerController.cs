@@ -99,7 +99,6 @@ public class PlayerController : MonoBehaviourPun
         if (piecePV != null && !piecePV.IsMine)
         {
             piecePV.RequestOwnership();
-            piecePV.TransferOwnership(photonView.Owner);
             Debug.Log("소유권 요청");
         }
 
@@ -112,6 +111,20 @@ public class PlayerController : MonoBehaviourPun
 
         // ② 다른 클라이언트에 동일하게 부모 붙이고 위치 고정하도록 RPC 호출
         photonView.RPC(nameof(RPC_PickUpPiece), RpcTarget.OthersBuffered, pieceID, myID);
+
+        photonView.RPC(nameof(RPC_TransferOwnerShip), RpcTarget.OthersBuffered, pieceID, myID);
+    }
+
+    [PunRPC]
+    public void RPC_TransferOwnerShip(int pieceViewID, int playerViewID)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        PhotonView piecePV = PhotonView.Find(pieceViewID);
+        PhotonView playerPV = PhotonView.Find(playerViewID);
+        if (piecePV == null || playerPV == null) return;
+
+        piecePV.TransferOwnership(playerPV.Owner);
     }
 
     private void _AttachPieceLocally(GameObject piece)
