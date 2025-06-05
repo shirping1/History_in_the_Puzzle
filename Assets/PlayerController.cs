@@ -99,6 +99,8 @@ public class PlayerController : MonoBehaviourPun
         if (piecePV != null && !piecePV.IsMine)
         {
             piecePV.RequestOwnership();
+            piecePV.TransferOwnership(photonView.Owner);
+            Debug.Log("소유권 요청");
         }
 
         currentHeldPiece = piece;
