@@ -45,6 +45,8 @@ MonoBehaviour:
   - RPC_PopUpQuizPanel
   - RPC_DropPiece
   - RPC_PickUpPiece
+  - RPC_TransferOwnerShip
+  - OnPiecePlacedRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

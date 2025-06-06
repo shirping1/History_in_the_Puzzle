@@ -1,2 +1,13 @@
 fileFormatVersion: 2
 guid: 2cc2705b620219642908dbc4b8f8542b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - piecePrefab: {instanceID: 0}
+  - puzzleBackgroundPrefab: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

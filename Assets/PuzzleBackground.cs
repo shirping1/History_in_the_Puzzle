@@ -13,7 +13,6 @@ public class PuzzleBackground : MonoBehaviourPun
     private float threshold = 2f;
 
     int rows, cols;
-
     private Person person;
 
     public void Init(string textureName, float worldSize, int rows, int cols, Person person)
@@ -21,7 +20,6 @@ public class PuzzleBackground : MonoBehaviourPun
         photonView.RPC("RPC_Init", RpcTarget.OthersBuffered, textureName, worldSize, rows, cols, (int)person);
 
         Texture2D texture = Resources.Load<Texture2D>("Images/" + textureName);
-
         if (texture == null)
         {
             Debug.Log("Resources 폴더에 이미지가 없습니다: " + textureName);
@@ -30,7 +28,6 @@ public class PuzzleBackground : MonoBehaviourPun
         this.texture = texture;
         this.worldSize = worldSize;
         this.textureAspect = (float)texture.height / texture.width;
-
         this.rows = rows;
         this.cols = cols;
         this.person = person;
@@ -83,7 +80,6 @@ public class PuzzleBackground : MonoBehaviourPun
                     0,
                     -(row * pieceHeight + pieceHeight / 2f)
                 );
-
                 Gizmos.DrawSphere(targetPos, 0.1f);
             }
         }
@@ -94,6 +90,7 @@ public class PuzzleBackground : MonoBehaviourPun
     {
         if (!PhotonNetwork.IsMasterClient)
         {
+            // 마스터 클라이언트만 “스냅 체크” 로직을 돌리도록 함
             return;
         }
 
@@ -118,7 +115,19 @@ public class PuzzleBackground : MonoBehaviourPun
             {
                 Debug.Log($"[Snap] {piece.row},{piece.col} 위치에 정착");
                 piece.SetTargetTransform(targetPos, Quaternion.Euler(90f, 0, 0));
+
+                // (1) 맞춘 조각에 대해 퀴즈 패널 띄우기
                 photonView.RPC(nameof(RPC_PopUpQuizPanel), piece.photonView.Owner, piece.photonView.ViewID, (int)person);
+
+                // (2) 맞춘 조각 카운트 증가를 위해 StageManager(마스터)에 RPC 호출
+                //    → 모든 퍼즐 조각이 맞춰졌는지 검사하는 처리는 StageManager 쪽에서 담당
+                if (StageManager.Instance != null)
+                {
+                    StageManager.Instance.photonView.RPC(
+                        nameof(StageManager.OnPiecePlacedRPC),
+                        RpcTarget.MasterClient
+                    );
+                }
             }
             else
             {
