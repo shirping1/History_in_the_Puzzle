@@ -45,6 +45,11 @@ MonoBehaviour:
   - RPC_PopUpQuizPanel
   - RPC_DropPiece
   - RPC_PickUpPiece
+  - RPC_TransferOwnerShip
+  - RPC_ClosePlayerWaitText
+  - RPC_SyncTimer
+  - RPC_LockPuzzlePiece
+  - RPC_ShowClearText
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

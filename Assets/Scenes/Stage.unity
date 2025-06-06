@@ -294,6 +294,7 @@ MonoBehaviour:
   playerPerfab: {fileID: 4169414368398200755, guid: f87d2e28b99221647879fdc927583d0d, type: 3}
   cinemachineCamera: {fileID: 69456074}
   imageSlicer: {fileID: 423418794}
+  mainPanel: {fileID: 0}
   person: 0
 --- !u!1 &660426129
 GameObject:
