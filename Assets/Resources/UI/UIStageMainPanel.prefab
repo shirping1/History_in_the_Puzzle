@@ -106,6 +106,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerWaitText: {fileID: 2233733055174831895}
   timerText: {fileID: 7467152166209769681}
+  clearText: {fileID: 2093691789365611639}
 --- !u!1 &4052758478958689823
 GameObject:
   m_ObjectHideFlags: 0
