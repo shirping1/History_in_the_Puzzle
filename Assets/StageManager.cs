@@ -96,10 +96,10 @@ public class StageManager : MonoBehaviourPunCallbacks
     {
         while (time >= 0 && isGameStarted)
         {
+            RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_SyncTimer), RpcTarget.AllBuffered, time);
             yield return new WaitForSeconds(1f);
             time -= 1f;
             Debug.Log("게임 시간" + time);
-            RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_SyncTimer), RpcTarget.AllBuffered, time);
         }
     }
 
