@@ -111,6 +111,7 @@ public class StageManager : MonoBehaviourPunCallbacks
         {
             isGameStarted = false;
             StopCoroutine(timerCoroutine);
+            RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_ShowClearText), RpcTarget.AllBuffered);
         }
     }
 }

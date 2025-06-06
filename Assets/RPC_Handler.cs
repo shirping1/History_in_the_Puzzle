@@ -28,4 +28,10 @@ public class RPC_Handler : MonoBehaviourPun
     {
         StageManager.Instance.mainPanel.SetTimerText(time);
     }
+
+    [PunRPC]
+    public void RPC_ShowClearText()
+    {
+        StageManager.Instance.mainPanel.SetClearText(true);
+    }
 }

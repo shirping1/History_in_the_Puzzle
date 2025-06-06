@@ -7,6 +7,13 @@ public class UIStageMainPanel : UIBase
     private Text playerWaitText;
     [SerializeField]
     private Text timerText;
+    [SerializeField]
+    private Text clearText;
+
+    private void Start()
+    {
+        clearText.gameObject.SetActive(false);
+    }
 
     public void ClosePlayerWaitText()
     {
@@ -16,5 +23,10 @@ public class UIStageMainPanel : UIBase
     public void SetTimerText(float time)
     {
         timerText.text = Mathf.CeilToInt(time).ToString();
+    }
+
+    public void SetClearText(bool value)
+    {
+        clearText.gameObject.SetActive(value);
     }
 }
