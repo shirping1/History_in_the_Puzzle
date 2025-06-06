@@ -49,4 +49,16 @@ public class RPC_Handler : MonoBehaviourPun
             }
         }
     }
+
+    [PunRPC]
+    public void RPC_TransferOwnerShip(int pieceViewID, int playerViewID)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        PhotonView piecePV = PhotonView.Find(pieceViewID);
+        PhotonView playerPV = PhotonView.Find(playerViewID);
+        if (piecePV == null || playerPV == null) return;
+
+        piecePV.TransferOwnership(playerPV.Owner);
+    }
 }

@@ -21,8 +21,10 @@ public class Piece : MonoBehaviourPun
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            photonView.RequestOwnership();
+            photonView.TransferOwnership(PhotonNetwork.MasterClient);
         }
+
+        StageManager.Instance.LockPieceCount();
 
         transform.position = pos;
         transform.rotation = quaternion;
