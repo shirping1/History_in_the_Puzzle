@@ -34,4 +34,19 @@ public class RPC_Handler : MonoBehaviourPun
     {
         StageManager.Instance.mainPanel.SetClearText(true);
     }
+
+    [PunRPC]
+    public void RPC_LockPuzzlePiece(int photonViewID)
+    {
+        PhotonView piecePV = PhotonView.Find(photonViewID);
+        if (piecePV != null)
+        {
+            Piece piece = piecePV.GetComponent<Piece>();
+            if (piece != null)
+            {
+                piece.LockPiece();  // 기존에 구현된 고정 함수 호출
+                Debug.Log($"퍼즐 조각 [{piece.row}, {piece.col}] 고정 완료");
+            }
+        }
+    }
 }
