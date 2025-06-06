@@ -103,4 +103,47 @@ public class DataManager : MonoBehaviour
     {
         completedQuizIndices.Clear();
     }
+
+    public bool IsAllQuizCompletedForCharacter(int characterIndex)
+    {
+        if (!quizzesByCharacter.ContainsKey(characterIndex))
+            return true;
+
+        if (!completedQuizIndices.ContainsKey(characterIndex))
+            return false;
+
+        return completedQuizIndices[characterIndex].Count >= quizzesByCharacter[characterIndex].Count;
+    }
+
+    public List<int> GetUnfinishedCharacterIndices()
+    {
+        List<int> unfinished = new();
+
+        foreach (var kvp in quizzesByCharacter)
+        {
+            int characterIndex = kvp.Key;
+
+            if (!IsAllQuizCompletedForCharacter(characterIndex))
+            {
+                unfinished.Add(characterIndex);
+            }
+        }
+
+        return unfinished;
+    }
+
+    // 캐릭터의 모든 퀴즈를 '완료'로 표시
+    public void MarkAllQuizzesCompletedForCharacter(int characterIndex)
+    {
+        if (!quizzesByCharacter.ContainsKey(characterIndex))
+            return;
+
+        if (!completedQuizIndices.ContainsKey(characterIndex))
+            completedQuizIndices[characterIndex] = new HashSet<int>();
+
+        foreach (var quiz in quizzesByCharacter[characterIndex])
+        {
+            completedQuizIndices[characterIndex].Add(quiz.index);
+        }
+    }
 }

@@ -1,8 +1,10 @@
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StageManager : MonoBehaviourPunCallbacks
 {
@@ -70,7 +72,17 @@ public class StageManager : MonoBehaviourPunCallbacks
         {
             isGameStarted = true;
             Debug.Log("모든 플레이어 접속 완료. 게임 시작!");
-            person = (Person)Random.Range(0, (int)Person.MAX);// 0 이상 max 미만
+            List<int> unfinishedCharacters = DataManager.Instance.GetUnfinishedCharacterIndices();
+
+            if (unfinishedCharacters.Count == 0)
+            {
+                Debug.Log("모든 인물의 퀴즈가 완료되었습니다.");
+                // TODO: 게임 종료 처리 또는 전체 초기화 후 재시작
+                return;
+            }
+
+            int randomIndex = Random.Range(0, unfinishedCharacters.Count);
+            person = (Person)unfinishedCharacters[randomIndex];
 
             RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_ClosePlayerWaitText), RpcTarget.AllBuffered);
 
@@ -111,7 +123,16 @@ public class StageManager : MonoBehaviourPunCallbacks
         {
             isGameStarted = false;
             StopCoroutine(timerCoroutine);
+            DataManager.Instance.MarkAllQuizzesCompletedForCharacter((int)person);
             RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_ShowClearText), RpcTarget.AllBuffered);
+
+            StartCoroutine(RestartStage(5f));
         }
+    }
+
+    IEnumerator RestartStage(float time)
+    {
+        yield return new WaitForSeconds(time);
+        PhotonNetwork.LoadLevel("Stage");
     }
 }
