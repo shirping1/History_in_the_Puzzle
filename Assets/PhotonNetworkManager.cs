@@ -8,6 +8,9 @@ public class PhotonNetworkManager : MonoBehaviourPunCallbacks
 
     private string gameVersion = "1";
 
+    [SerializeField]
+    private GameObject rpc_Handler;
+
     private void Awake()
     {
         if (Instance == null)
@@ -70,16 +73,20 @@ public class PhotonNetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.LoadLevel("Stage");
+
+            rpc_Handler = PhotonNetwork.InstantiateRoomObject("RPC_Handler", Vector3.zero, Quaternion.identity);
+            DontDestroyOnLoad(rpc_Handler);
+
         }
     }
 
     public override void OnLeftRoom()
     {
-        //if (photonNetworkManager != null)
-        //{
-        //    Debug.Log("photonNetworkManager 제거");
-        //    Destroy(photonNetworkManager);
-        //}
+        if (rpc_Handler != null)
+        {
+            Debug.Log("rpc_Handler 제거");
+            Destroy(rpc_Handler);
+        }
     }
 
     public void CreateRoom(string roomName, RoomOptions roomOptions)
