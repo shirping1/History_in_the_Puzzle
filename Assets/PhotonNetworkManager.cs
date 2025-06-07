@@ -8,7 +8,6 @@ public class PhotonNetworkManager : MonoBehaviourPunCallbacks
 
     private string gameVersion = "1";
 
-    [SerializeField]
     private GameObject rpc_Handler;
 
     private void Awake()

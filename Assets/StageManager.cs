@@ -28,6 +28,10 @@ public class StageManager : MonoBehaviourPunCallbacks
     private int maxPiece = 9;
     private int lockPiece = 0;
 
+    private HashSet<int> restartVote = new HashSet<int>();
+
+    public bool isGameOver { get; private set; }
+
     private void Awake()
     {
         if (Instance == null)
@@ -54,6 +58,8 @@ public class StageManager : MonoBehaviourPunCallbacks
         GameObject player = PhotonNetwork.Instantiate(playerPerfab.name, Vector3.zero, Quaternion.identity);
         cinemachineCamera.Follow = player.transform;
         cinemachineCamera.LookAt = player.transform;
+
+        isGameOver = false;
 
         TryStartGame();
     }
@@ -86,11 +92,11 @@ public class StageManager : MonoBehaviourPunCallbacks
 
             RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_ClosePlayerWaitText), RpcTarget.AllBuffered);
 
-            if(PhotonNetwork.CurrentRoom.MaxPlayers == 1)
+            if (PhotonNetwork.CurrentRoom.MaxPlayers == 1)
             {
                 timerCoroutine = StartCoroutine(GameTimer(90f));
             }
-            else if(PhotonNetwork.CurrentRoom.MaxPlayers == 2)
+            else if (PhotonNetwork.CurrentRoom.MaxPlayers == 2)
             {
                 timerCoroutine = StartCoroutine(GameTimer(60f));
             }
@@ -113,13 +119,15 @@ public class StageManager : MonoBehaviourPunCallbacks
             time -= 1f;
             Debug.Log("게임 시간" + time);
         }
+
+        RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_GameOver), RpcTarget.All);
     }
 
     public void LockPieceCount()
     {
         lockPiece++;
 
-        if(lockPiece == maxPiece)
+        if (lockPiece == maxPiece)
         {
             isGameStarted = false;
             StopCoroutine(timerCoroutine);
@@ -134,5 +142,22 @@ public class StageManager : MonoBehaviourPunCallbacks
     {
         yield return new WaitForSeconds(time);
         PhotonNetwork.LoadLevel("Stage");
+    }
+
+    public void GameOver()
+    {
+        isGameOver = true;
+        mainPanel.OnGameOverText();
+    }
+
+    public void VoteRestart(int actornumber)
+    {
+        restartVote.Add(actornumber);
+
+        if(restartVote.Count == PhotonNetwork.CurrentRoom.PlayerCount)
+        {
+            DataManager.Instance.ResetCompletedQuizzesForCharacter((int)person);
+            PhotonNetwork.LoadLevel("Stage");
+        }
     }
 }

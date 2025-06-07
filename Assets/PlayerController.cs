@@ -32,6 +32,15 @@ public class PlayerController : MonoBehaviourPun
         if (!photonView.IsMine)
             return;
 
+        if (StageManager.Instance.isGameOver)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_VoteRestart), RpcTarget.MasterClient, photonView.Owner.ActorNumber);
+            }
+            return;
+        }
+
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         moveInput = new Vector3(h, 0, v).normalized;
@@ -132,7 +141,7 @@ public class PlayerController : MonoBehaviourPun
         piece.transform.SetParent(holdPoint);
         piece.transform.position = holdPoint.position;
 
-        
+
         // piece.transform.localRotation = Quaternion.identity; ← 이 줄 제거
 
         Rigidbody rb = piece.GetComponent<Rigidbody>();

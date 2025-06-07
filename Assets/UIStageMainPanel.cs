@@ -9,9 +9,12 @@ public class UIStageMainPanel : UIBase
     private Text timerText;
     [SerializeField]
     private Text clearText;
+    [SerializeField]
+    private Text gameOverText;
 
     private void Start()
     {
+        gameOverText.gameObject.SetActive(false);
         clearText.gameObject.SetActive(false);
     }
 
@@ -28,5 +31,10 @@ public class UIStageMainPanel : UIBase
     public void SetClearText(bool value)
     {
         clearText.gameObject.SetActive(value);
+    }
+
+    public void OnGameOverText()
+    {
+        gameOverText.gameObject.SetActive(true);
     }
 }

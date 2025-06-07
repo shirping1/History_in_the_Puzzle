@@ -146,4 +146,13 @@ public class DataManager : MonoBehaviour
             completedQuizIndices[characterIndex].Add(quiz.index);
         }
     }
+
+    // 특정 캐릭터의 퀴즈 완료 기록을 초기화 (미완료로 변경)
+    public void ResetCompletedQuizzesForCharacter(int characterIndex)
+    {
+        if (completedQuizIndices.ContainsKey(characterIndex))
+        {
+            completedQuizIndices[characterIndex].Clear();
+        }
+    }
 }

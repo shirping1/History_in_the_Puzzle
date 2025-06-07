@@ -50,6 +50,9 @@ MonoBehaviour:
   - RPC_SyncTimer
   - RPC_LockPuzzlePiece
   - RPC_ShowClearText
+  - RPC_OnGameOverText
+  - RPC_GameOver
+  - RPC_VoteRestart
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

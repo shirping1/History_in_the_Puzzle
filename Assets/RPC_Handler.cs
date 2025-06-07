@@ -61,4 +61,22 @@ public class RPC_Handler : MonoBehaviourPun
 
         piecePV.TransferOwnership(playerPV.Owner);
     }
+
+    [PunRPC]
+    public void RPC_OnGameOverText()
+    {
+        StageManager.Instance.mainPanel.OnGameOverText();
+    }
+
+    [PunRPC]
+    public void RPC_GameOver()
+    {
+        StageManager.Instance.GameOver();
+    }
+
+    [PunRPC]
+    public void RPC_VoteRestart(int actorNumber)
+    {
+        StageManager.Instance.VoteRestart(actorNumber);
+    }
 }
