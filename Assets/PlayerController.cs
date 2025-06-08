@@ -105,15 +105,16 @@ public class PlayerController : MonoBehaviourPun
     private void PickUpPiece(GameObject piece)
     {
         PhotonView piecePV = piece.GetComponent<PhotonView>();
-        if (piecePV != null && !piecePV.IsMine)
-        {
-            piecePV.RequestOwnership();
-            Debug.Log("소유권 요청");
-        }
-
         currentHeldPiece = piece;
         int myID = photonView.ViewID;
         int pieceID = piecePV.ViewID;
+        if (piecePV != null && !piecePV.IsMine)
+        {
+            photonView.RPC(nameof(RPC_TransferOwnerShip), RpcTarget.OthersBuffered, pieceID, myID);
+            //piecePV.RequestOwnership();
+            Debug.Log("소유권 요청");
+        }
+
 
         // ① 로컬에선 즉시 부모 붙이고 위치 고정
         _AttachPieceLocally(piece);
@@ -121,7 +122,7 @@ public class PlayerController : MonoBehaviourPun
         // ② 다른 클라이언트에 동일하게 부모 붙이고 위치 고정하도록 RPC 호출
         photonView.RPC(nameof(RPC_PickUpPiece), RpcTarget.OthersBuffered, pieceID, myID);
 
-        photonView.RPC(nameof(RPC_TransferOwnerShip), RpcTarget.OthersBuffered, pieceID, myID);
+        //photonView.RPC(nameof(RPC_TransferOwnerShip), RpcTarget.OthersBuffered, pieceID, myID);
     }
 
     [PunRPC]
