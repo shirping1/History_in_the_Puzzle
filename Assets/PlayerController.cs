@@ -105,9 +105,11 @@ public class PlayerController : MonoBehaviourPun
     private void PickUpPiece(GameObject piece)
     {
         PhotonView piecePV = piece.GetComponent<PhotonView>();
+
         currentHeldPiece = piece;
         int myID = photonView.ViewID;
         int pieceID = piecePV.ViewID;
+        
         if (piecePV != null && !piecePV.IsMine)
         {
             photonView.RPC(nameof(RPC_TransferOwnerShip), RpcTarget.OthersBuffered, pieceID, myID);
@@ -183,6 +185,7 @@ public class PlayerController : MonoBehaviourPun
         photonView.RPC(nameof(RPC_DropPiece), RpcTarget.OthersBuffered, pieceID);
 
         currentHeldPiece = null;
+        nearbyPiece = null;
     }
 
     private void _DetachPieceLocally(GameObject piece)

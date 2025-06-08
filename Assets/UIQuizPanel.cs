@@ -107,6 +107,12 @@ public class UIQuizPanel : UIBase
 
     public void ResetPuzzlePiece(int viewID)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            RPC_Handler.Instance.photonView.RPC(nameof(RPC_Handler.Instance.RPC_ResetPuzzlePiece), RpcTarget.MasterClient, viewID);
+            return;
+        }
+
         PhotonView piecePV = PhotonView.Find(viewID);
         if (piecePV != null)
         {

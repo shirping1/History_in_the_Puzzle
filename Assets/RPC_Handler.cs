@@ -51,6 +51,29 @@ public class RPC_Handler : MonoBehaviourPun
     }
 
     [PunRPC]
+    public void RPC_ResetPuzzlePiece(int photonViewID)
+    {
+        PhotonView piecePV = PhotonView.Find(photonViewID);
+        if (piecePV != null)
+        {
+            Piece piece = piecePV.GetComponent<Piece>();
+            if (piece != null)
+            {
+                piece.ResetToRandomPosition();  // 기존에 구현된 고정 함수 호출
+                Debug.Log($"퍼즐 조각 [{piece.row}, {piece.col}] 고정 완료");
+            }
+            else
+            {
+                Debug.LogWarning("Piece 컴포넌트가 없습니다.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"viewID {photonViewID}에 해당하는 PhotonView를 찾지 못했습니다.");
+        }
+    }
+
+    [PunRPC]
     public void RPC_TransferOwnerShip(int pieceViewID, int playerViewID)
     {
         if (!PhotonNetwork.IsMasterClient) return;
