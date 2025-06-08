@@ -88,11 +88,11 @@ public class StageManager : MonoBehaviourPunCallbacks
 
             if(PhotonNetwork.CurrentRoom.MaxPlayers == 1)
             {
-                timerCoroutine = StartCoroutine(GameTimer(90f));
+                timerCoroutine = StartCoroutine(GameTimer(300f));
             }
             else if(PhotonNetwork.CurrentRoom.MaxPlayers == 2)
             {
-                timerCoroutine = StartCoroutine(GameTimer(60f));
+                timerCoroutine = StartCoroutine(GameTimer(180f));
             }
 
             imageSlicer.Init(person);
