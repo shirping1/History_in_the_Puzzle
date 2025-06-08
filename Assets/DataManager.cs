@@ -16,6 +16,18 @@ public enum Person
     DangunWanggeom,
     GwanggaetotheGreat,
     Kanggamchan,
+    LeeSeonggye,
+    JeongDojeon,
+    KingSejongtheGreat,
+    ShinSaimdang,
+    YiI,
+    YiSunsin,
+    JeongYakyong,
+    KimGu,
+    AhnJunggeun,
+    YuGwansun,
+    YunBonggil,
+    ShinChaeho,
     MAX
 }
 
