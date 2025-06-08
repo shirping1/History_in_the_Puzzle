@@ -101,6 +101,15 @@ public class StageManager : MonoBehaviourPunCallbacks
 
     public void ClosePlayerWaitTextInMainPanel()
     {
+        StartCoroutine(ClosePlayerWaitText());
+    }
+
+    IEnumerator ClosePlayerWaitText()
+    {
+        while (mainPanel == null)
+        {
+            yield return null;
+        }
         mainPanel.ClosePlayerWaitText();
     }
 
